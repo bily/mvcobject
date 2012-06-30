@@ -263,6 +263,20 @@ function testTransitiveBindBackwards() {
 }
 
 
+function testInheritance() {
+  var C = function() {};
+  C.prototype = new mvc.MVCObject();
+  var callbackCalled;
+  C.prototype.k_changed = function() {
+    callbackCalled = true;
+  };
+  var c = new C();
+  c.set('k', 1);
+  assertEquals(c.get('k'), 1);
+  assertTrue(callbackCalled);
+}
+
+
 function testMrideyAccessors() {
   // http://blog.mridey.com/2010/03/maps-javascript-api-v3-more-about.html
   var a = new mvc.MVCObject();
@@ -276,6 +290,7 @@ function testMrideyAccessors() {
   });
   assertEquals(b.get('index'), 3);
 }
+
 
 function testMrideyBinding() {
   // http://blog.mridey.com/2010/03/maps-javascript-api-v3-more-about.html
