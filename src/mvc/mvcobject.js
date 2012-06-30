@@ -31,6 +31,7 @@ goog.require('goog.object');
  * @extends {goog.events.EventTarget}
  */
 mvc.MVCObject = function() {
+  goog.base(this);
 };
 goog.inherits(mvc.MVCObject, goog.events.EventTarget);
 
