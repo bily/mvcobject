@@ -237,6 +237,32 @@ function testBindRenameCallbacks() {
 }
 
 
+function testTransitiveBindForwards() {
+  var m = new mvc.MVCObject();
+  var n = new mvc.MVCObject();
+  var o = new mvc.MVCObject();
+  n.bindTo('kn', m, 'km');
+  o.bindTo('ko', n, 'kn');
+  m.set('km', 1);
+  assertEquals(m.get('km'), 1);
+  assertEquals(n.get('kn'), 1);
+  assertEquals(o.get('ko'), 1);
+}
+
+
+function testTransitiveBindBackwards() {
+  var m = new mvc.MVCObject();
+  var n = new mvc.MVCObject();
+  var o = new mvc.MVCObject();
+  n.bindTo('kn', m, 'km');
+  o.bindTo('ko', n, 'kn');
+  o.set('ko', 1);
+  assertEquals(m.get('km'), 1);
+  assertEquals(n.get('kn'), 1);
+  assertEquals(o.get('ko'), 1);
+}
+
+
 function testMrideyAccessors() {
   // http://blog.mridey.com/2010/03/maps-javascript-api-v3-more-about.html
   var a = new mvc.MVCObject();
