@@ -21,7 +21,6 @@
 goog.provide('mvc.MVCObject');
 
 goog.require('goog.array');
-goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.object');
 
@@ -94,7 +93,7 @@ mvc.MVCObject.prototype.notify = function(key) {
     if (goog.isFunction(this[type])) {
       this[type](key);
     }
-    this.dispatchEvent(new goog.events.Event(type));
+    this.dispatchEvent(type);
   }, this);
 };
 
