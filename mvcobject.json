@@ -1,0 +1,38 @@
+{
+  "id": "mvc",
+
+  "inputs": [
+    "src/mvc/mvcobject.js"
+  ],
+
+  "paths": [
+    "src",
+    "tests"
+  ],
+
+  "define": {
+    "goog.DEBUG": false
+  },
+
+  "externs": [
+  ],
+
+  "mode": "ADVANCED",
+  "level": "VERBOSE",
+
+  "checks": {
+    "accessControls": "ERROR",
+    "visibility": "ERROR",
+    "checkTypes": "ERROR",
+    "checkRegExp": "ERROR",
+    "checkVars": "ERROR",
+    "deprecated": "ERROR",
+    "fileoverviewTags": "ERROR",
+    "invalidCasts": "ERROR",
+    "missingProperties": "ERROR",
+    "nonStandardJsDocs": "ERROR",
+    "undefinedVars": "ERROR"
+  },
+
+  "jsdoc-html-output-path": "jsdoc"
+}
