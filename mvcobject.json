@@ -1,5 +1,5 @@
 {
-  "id": "mvc",
+  "id": "mvcobject",
 
   "inputs": [
     "src/mvc/mvcobject.js"
