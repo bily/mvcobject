@@ -37,7 +37,7 @@ mvc.MVCObject = function() {
    * @private
    * @type {Object.<string, function(*)>}
    */
-  this.bindings_ = {};
+  this.setters_ = {};
 
   /**
    * @private
@@ -59,11 +59,11 @@ goog.inherits(mvc.MVCObject, goog.events.EventTarget);
 mvc.MVCObject.prototype.bindTo =
     function(key, target, opt_targetKey, opt_noNotify) {
   var targetKey = goog.isDef(opt_targetKey) ? opt_targetKey : key;
-  if (goog.object.containsKey(this.bindings_, key)) {
+  if (goog.object.containsKey(this.setters_, key)) {
     this.unbind(key);
   }
   this.set(key, target.get(targetKey));
-  this.bindings_[key] = function(value) {
+  this.setters_[key] = function(value) {
     target.set(targetKey, value);
   };
   var eventType = targetKey + '_changed';
@@ -104,8 +104,8 @@ mvc.MVCObject.prototype.notify = function(key) {
  * @param {*} value Value.
  */
 mvc.MVCObject.prototype.set = function(key, value) {
-  if (goog.object.containsKey(this.bindings_, key)) {
-    this.bindings_[key](value);
+  if (goog.object.containsKey(this.setters_, key)) {
+    this.setters_[key](value);
   } else {
     goog.object.set(this, key, value);
     this.notify(key);
@@ -127,11 +127,11 @@ mvc.MVCObject.prototype.setValues = function(values) {
  * @param {string} key Key.
  */
 mvc.MVCObject.prototype.unbind = function(key) {
-  if (goog.object.containsKey(this.bindings_, key)) {
+  if (goog.object.containsKey(this.setters_, key)) {
     goog.asserts.assert(goog.object.containsKey(this.listeners_, key));
     goog.events.unlistenByKey(this.listeners_[key]);
     goog.object.remove(this.listeners_, key);
-    goog.object.remove(this.bindings_, key);
+    goog.object.remove(this.setters_, key);
   }
 };
 
@@ -139,7 +139,7 @@ mvc.MVCObject.prototype.unbind = function(key) {
 /**
  */
 mvc.MVCObject.prototype.unbindAll = function() {
-  goog.object.forEach(this.bindings_, function(binding, key) {
+  goog.object.forEach(this.setters_, function(binding, key) {
     this.unbind(key);
   }, this);
 };
