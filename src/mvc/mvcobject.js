@@ -44,20 +44,47 @@ goog.inherits(mvc.MVCObject, goog.events.EventTarget);
 
 
 /**
+ * @param {string} str String.
+ * @return {string} Capitalized string.
+ */
+mvc.MVCObject.capitalize = function(str) {
+  return str.substr(0, 1).toUpperCase() + str.substr(1);
+};
+
+
+/**
  * @private
  * @type {Object.<string, string>}
  */
-mvc.MVCObject.capitalizeCache_ = {};
+mvc.MVCObject.getterNameCache_ = {};
 
 
 /**
  * @param {string} str String.
  * @return {string} Capitalized string.
  */
-mvc.MVCObject.capitalize = function(str) {
-  return mvc.MVCObject.capitalizeCache_[str] ||
-      (mvc.MVCObject.capitalizeCache_[str] =
-          str.substr(0, 1).toUpperCase() + str.substr(1));
+mvc.MVCObject.getGetterName_ = function(str) {
+  return mvc.MVCObject.getterNameCache_[str] ||
+      (mvc.MVCObject.getterNameCache_[str] =
+          'get' + mvc.MVCObject.capitalize(str));
+};
+
+
+/**
+ * @private
+ * @type {Object.<string, string>}
+ */
+mvc.MVCObject.setterNameCache_ = {};
+
+
+/**
+ * @param {string} str String.
+ * @return {string} Capitalized string.
+ */
+mvc.MVCObject.getSetterName_ = function(str) {
+  return mvc.MVCObject.setterNameCache_[str] ||
+      (mvc.MVCObject.setterNameCache_[str] =
+          'set' + mvc.MVCObject.capitalize(str));
 };
 
 
@@ -119,7 +146,7 @@ mvc.MVCObject.prototype.get = function(key) {
     var accessor = accessors[key];
     var target = accessor.target;
     var targetKey = accessor.key;
-    var getterName = 'get' + mvc.MVCObject.capitalize(targetKey);
+    var getterName = mvc.MVCObject.getGetterName_(targetKey);
     if (target[getterName]) {
       return target[getterName]();
     } else {
@@ -172,7 +199,7 @@ mvc.MVCObject.prototype.set = function(key, value) {
     var accessor = accessors[key];
     var target = accessor.target;
     var targetKey = accessor.key;
-    var setterName = 'set' + mvc.MVCObject.capitalize(targetKey);
+    var setterName = mvc.MVCObject.getSetterName_(targetKey);
     if (target[setterName]) {
       target[setterName](value);
     } else {
@@ -190,7 +217,7 @@ mvc.MVCObject.prototype.set = function(key, value) {
  */
 mvc.MVCObject.prototype.setOptions = function(options) {
   goog.object.forEach(options, function(value, key) {
-    var setterName = 'set' + mvc.MVCObject.capitalize(key);
+    var setterName = mvc.MVCObject.getSetterName_(key);
     if (this[setterName]) {
       this[setterName](value);
     } else {
