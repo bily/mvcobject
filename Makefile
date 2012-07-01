@@ -1,5 +1,9 @@
 PLOVR_JAR=plovr-4b3caf2b7d84.jar
 
+.PHONY: build
+build: $(PLOVR_JAR)
+	java -jar $(PLOVR_JAR) build mvcobject.json >/dev/null
+
 .PHONY: serve
 serve: $(PLOVR_JAR)
 	java -jar $(PLOVR_JAR) serve mvcobject.json
