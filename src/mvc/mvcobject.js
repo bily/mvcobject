@@ -77,7 +77,7 @@ mvc.MVCObject.prototype.bindTo =
     if (!noNotify) {
       this.notify(key);
     }
-  }, false, this);
+  }, undefined, this);
 };
 
 
