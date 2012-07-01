@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview A cleanroom implementation of Google Maps' MVCObject.
+ * @fileoverview An implementation of Google Maps' MVCObject.
  * @see https://developers.google.com/maps/articles/mvcfun
  * @see https://developers.google.com/maps/documentation/javascript/reference
  */
@@ -24,6 +24,12 @@ goog.require('goog.array');
 goog.require('goog.events');
 goog.require('goog.events.EventTarget');
 goog.require('goog.object');
+
+
+/**
+ * @typedef {{target: mvc.MVCObject, key: string}}
+ */
+mvc.MVCObjectAccessor;
 
 
 
@@ -56,17 +62,37 @@ mvc.MVCObject.capitalize = function(str) {
 
 
 /**
- * @private
- * @type {Object.<string, function(*)>}
+ * @param {mvc.MVCObject} obj Object.
+ * @return {Object.<string, mvc.MVCObjectAccessor>} Accessors.
  */
-mvc.MVCObject.prototype.setters_;
+mvc.MVCObject.getAccessors = function(obj) {
+  return obj['gm_accessors_'] || (obj['gm_accessors_'] = {});
+};
 
 
 /**
- * @private
- * @type {Object.<string, ?number>}
+ * @param {mvc.MVCObject} obj Object.
+ * @return {Object.<string, ?number>} Listeners.
  */
-mvc.MVCObject.prototype.listeners_;
+mvc.MVCObject.getListeners = function(obj) {
+  return obj['gm_bindings_'] || (obj['gm_bindings_'] = {});
+};
+
+
+/**
+ * @param {mvc.MVCObject} obj Object.
+ * @param {string} key Key.
+ */
+mvc.MVCObject.doNotify = function(obj, key) {
+  var changedMethodName = key + '_changed';
+  if (obj[changedMethodName]) {
+    obj[changedMethodName]();
+  } else {
+    obj.changed();
+  }
+  var eventType = key.toLowerCase() + '_changed';
+  obj.dispatchEvent(eventType);
+};
 
 
 /**
@@ -74,28 +100,29 @@ mvc.MVCObject.prototype.listeners_;
  * @param {mvc.MVCObject} target Target.
  * @param {string=} opt_targetKey Target key.
  * @param {boolean=} opt_noNotify No notify.
- * FIXME verify behaviour of noNotify.
  */
 mvc.MVCObject.prototype.bindTo =
     function(key, target, opt_targetKey, opt_noNotify) {
   var targetKey = goog.isDef(opt_targetKey) ? opt_targetKey : key;
-  this.setters_ = this.setters_ || {};
-  this.listeners_ = this.listeners_ || {};
-  if (goog.object.containsKey(this.setters_, key)) {
-    this.unbind(key);
-  }
-  this.set(key, target.get(targetKey));
-  this.setters_[key] = function(value) {
-    target.set(targetKey, value);
-  };
-  var eventType = targetKey + '_changed';
+  var that = this;
+  that.unbind(key);
+  var eventType = targetKey.toLowerCase() + '_changed';
+  var listeners = mvc.MVCObject.getListeners(that);
+  listeners[key] = goog.events.listen(target, eventType, function() {
+    mvc.MVCObject.doNotify(that, key);
+  });
+  var accessors = mvc.MVCObject.getAccessors(that);
+  accessors[key] = {target: target, key: targetKey};
   var noNotify = goog.isDef(opt_noNotify) ? opt_noNotify : false;
-  this.listeners_[key] = goog.events.listen(target, eventType, function() {
-    this.setInternal_(key, target.get(targetKey));
-    if (!noNotify) {
-      this.notify(key);
-    }
-  }, undefined, this);
+  if (!noNotify) {
+    mvc.MVCObject.doNotify(that, key);
+  }
+};
+
+
+/**
+ */
+mvc.MVCObject.prototype.changed = function() {
 };
 
 
@@ -104,11 +131,19 @@ mvc.MVCObject.prototype.bindTo =
  * @return {*} Value.
  */
 mvc.MVCObject.prototype.get = function(key) {
-  var getterName = 'get' + mvc.MVCObject.capitalize(key);
-  if (goog.object.containsKey(this, getterName)) {
-    return this[getterName]();
+  var accessors = mvc.MVCObject.getAccessors(this);
+  if (accessors.hasOwnProperty(key)) {
+    var accessor = accessors[key];
+    var target = accessor.target;
+    var targetKey = accessor.key;
+    var getterName = 'get' + mvc.MVCObject.capitalize(targetKey);
+    if (target[getterName]) {
+      return target[getterName]();
+    } else {
+      return target.get(targetKey);
+    }
   } else {
-    return goog.object.get(this, key);
+    return this[key];
   }
 };
 
@@ -117,12 +152,15 @@ mvc.MVCObject.prototype.get = function(key) {
  * @param {string} key Key.
  */
 mvc.MVCObject.prototype.notify = function(key) {
-  goog.array.forEach([key + '_changed', 'changed'], function(type) {
-    if (goog.isFunction(this[type])) {
-      this[type](key);
-    }
-    this.dispatchEvent(type);
-  }, this);
+  var accessors = mvc.MVCObject.getAccessors(this);
+  if (accessors.hasOwnProperty(key)) {
+    var accessor = accessors[key];
+    var target = accessor.target;
+    var targetKey = accessor.key;
+    target.notify(targetKey);
+  } else {
+    mvc.MVCObject.doNotify(this, key);
+  }
 };
 
 
@@ -131,51 +169,58 @@ mvc.MVCObject.prototype.notify = function(key) {
  * @param {*} value Value.
  */
 mvc.MVCObject.prototype.set = function(key, value) {
-  if (goog.isDef(this.setters_) &&
-      goog.object.containsKey(this.setters_, key)) {
-    this.setters_[key](value);
+  var accessors = mvc.MVCObject.getAccessors(this);
+  if (accessors.hasOwnProperty(key)) {
+    var accessor = accessors[key];
+    var target = accessor.target;
+    var targetKey = accessor.key;
+    var setterName = 'set' + mvc.MVCObject.capitalize(targetKey);
+    if (target[setterName]) {
+      target[setterName](value);
+    } else {
+      target.set(targetKey, value);
+    }
   } else {
-    this.setInternal_(key, value);
-    this.notify(key);
+    this[key] = value;
+    mvc.MVCObject.doNotify(this, key);
   }
 };
 
 
 /**
- * @private
- * @param {string} key Key.
- * @param {*} value Value.
+ * @param {Object.<string, *>} options Options.
  */
-mvc.MVCObject.prototype.setInternal_ = function(key, value) {
-  var setterName = 'set' + mvc.MVCObject.capitalize(key);
-  if (goog.object.containsKey(this, setterName)) {
-    this[setterName](value);
-  } else {
-    goog.object.set(this, key, value);
-  }
+mvc.MVCObject.prototype.setOptions = function(options) {
+  goog.object.forEach(options, function(value, key) {
+    var setterName = 'set' + mvc.MVCObject.capitalize(key);
+    if (this[setterName]) {
+      this[setterName](value);
+    } else {
+      this.set(key, value);
+    }
+  }, this);
 };
 
 
 /**
  * @param {Object.<string, *>} values Values.
  */
-mvc.MVCObject.prototype.setValues = function(values) {
-  goog.object.forEach(values, function(value, key) {
-    this.set(key, value);
-  }, this);
-};
+mvc.MVCObject.prototype.setValues = mvc.MVCObject.prototype.setOptions;
 
 
 /**
  * @param {string} key Key.
  */
 mvc.MVCObject.prototype.unbind = function(key) {
-  if (goog.isDef(this.setters_) &&
-      goog.object.containsKey(this.setters_, key)) {
-    goog.asserts.assert(goog.object.containsKey(this.listeners_, key));
-    goog.events.unlistenByKey(this.listeners_[key]);
-    goog.object.remove(this.listeners_, key);
-    goog.object.remove(this.setters_, key);
+  var listeners = mvc.MVCObject.getListeners(this);
+  var listener = listeners[key];
+  if (listener) {
+    delete listeners[key];
+    goog.events.unlistenByKey(listener);
+    var value = this.get(key);
+    var accessors = mvc.MVCObject.getAccessors(this);
+    delete accessors[key];
+    this[key] = value;
   }
 };
 
@@ -183,9 +228,12 @@ mvc.MVCObject.prototype.unbind = function(key) {
 /**
  */
 mvc.MVCObject.prototype.unbindAll = function() {
-  if (goog.isDef(this.setters_)) {
-    goog.object.forEach(this.setters_, function(binding, key) {
-      this.unbind(key);
-    }, this);
-  }
+  var keys = [];
+  var listeners = mvc.MVCObject.getListeners(this);
+  goog.object.forEach(listeners, function(listener, key) {
+    keys.push(key);
+  });
+  goog.array.forEach(keys, function(key) {
+    this.unbind(key);
+  }, this);
 };

@@ -34,12 +34,12 @@ function testSetValues() {
 
 function testNotifyCallback() {
   var m = new mvc.MVCObject();
-  var callbackKey;
-  m.changed = function(key) {
-    callbackKey = key;
+  var callbackCalled;
+  m.changed = function() {
+    callbackCalled = true;
   };
   m.notify('k');
-  assertEquals('k', callbackKey);
+  assertTrue(callbackCalled);
 }
 
 
@@ -51,17 +51,6 @@ function testNotifyKeyCallback() {
   };
   m.notify('k');
   assertTrue(callbackCalled);
-}
-
-
-function testNotifyEvent() {
-  var m = new mvc.MVCObject();
-  var eventDispatched = false;
-  goog.events.listen(m, 'changed', function() {
-    eventDispatched = true;
-  });
-  m.notify('k');
-  assertTrue(eventDispatched);
 }
 
 
@@ -78,12 +67,12 @@ function testNotifyKeyEvent() {
 
 function testSetNotifyCallback() {
   var m = new mvc.MVCObject();
-  var callbackKey;
-  m.changed = function(key) {
-    callbackKey = key;
+  var callbackCalled;
+  m.changed = function() {
+    callbackCalled = true;
   };
   m.set('k', 1);
-  assertEquals('k', callbackKey);
+  assertTrue(callbackCalled);
 }
 
 
@@ -98,14 +87,16 @@ function testSetNotifyKeyCallback() {
 }
 
 
-function testSetNotifyEvent() {
+function testBindSetNotifyKeyCallback() {
   var m = new mvc.MVCObject();
-  var eventDispatched = false;
-  goog.events.listen(m, 'changed', function() {
-    eventDispatched = true;
-  });
+  var n = new mvc.MVCObject();
+  var callbackCalled = false;
+  n.k_changed = function(v) {
+    callbackCalled = true;
+  };
+  n.bindTo('k', m);
   m.set('k', 1);
-  assertTrue(eventDispatched);
+  assertTrue(callbackCalled);
 }
 
 
@@ -198,6 +189,24 @@ function testBindNotify() {
   var m = new mvc.MVCObject();
   var n = new mvc.MVCObject();
   m.bindTo('k', n);
+  mCallbackCalled = false;
+  m.k_changed = function() {
+    mCallbackCalled = true;
+  };
+  nCallbackCalled = false;
+  n.k_changed = function() {
+    nCallbackCalled = true;
+  };
+  n.set('k', 1);
+  assertTrue(mCallbackCalled);
+  assertTrue(nCallbackCalled);
+}
+
+
+function testBindBackwardsNotify() {
+  var m = new mvc.MVCObject();
+  var n = new mvc.MVCObject();
+  n.bindTo('k', m);
   mCallbackCalled = false;
   m.k_changed = function() {
     mCallbackCalled = true;
@@ -353,11 +362,31 @@ function testPriorityUndefined() {
 function testSetter() {
   var a = new mvc.MVCObject();
   var x;
+  var setterCalled;
   a.setX = function(value) {
-    x = value;
+    this.x = value;
+    setterCalled = true;
   };
   a.set('x', 1);
-  assertEquals(1, x);
+  assertEquals(1, a.get('x'));
+  assertUndefined(setterCalled);
+}
+
+
+function testSetterBind() {
+  var a = new mvc.MVCObject();
+  var x;
+  var setterCalled;
+  a.setX = function(value) {
+    this.x = value;
+    setterCalled = true;
+  };
+  var b = new mvc.MVCObject();
+  b.bindTo('x', a);
+  b.set('x', 1);
+  assertEquals(1, a.get('x'));
+  assertEquals(1, b.get('x'));
+  assertTrue(setterCalled);
 }
 
 
@@ -368,6 +397,28 @@ function testGetter() {
     getterCalled = true;
     return 1;
   };
-  assertEquals(1, a.get('x'));
+  assertUndefined(a.get('x'));
+  assertUndefined(getterCalled);
+}
+
+
+function testGetterBind() {
+  var a = new mvc.MVCObject();
+  var getterCalled;
+  a.getX = function() {
+    getterCalled = true;
+    return 1;
+  };
+  var b = new mvc.MVCObject();
+  b.bindTo('x', a);
+  assertEquals(1, b.get('x'));
   assertTrue(getterCalled);
+}
+
+
+function testBindSelf() {
+  var a = new mvc.MVCObject();
+  assertThrows(function() {
+    a.bindTo('k', a);
+  });
 }
