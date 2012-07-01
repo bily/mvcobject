@@ -18,7 +18,7 @@ function testGetSetGet() {
   var m = new mvc.MVCObject();
   assertUndefined(m.get('k'));
   m.set('k', 1);
-  assertEquals(m.get('k'), 1);
+  assertEquals(1, m.get('k'));
 }
 
 
@@ -28,8 +28,8 @@ function testSetValues() {
     k1: 1,
     k2: 2
   });
-  assertEquals(m.get('k1'), 1);
-  assertEquals(m.get('k2'), 2);
+  assertEquals(1, m.get('k1'));
+  assertEquals(2, m.get('k2'));
 }
 
 function testNotifyCallback() {
@@ -39,7 +39,7 @@ function testNotifyCallback() {
     callbackKey = key;
   };
   m.notify('k');
-  assertEquals(callbackKey, 'k');
+  assertEquals('k', callbackKey);
 }
 
 
@@ -83,7 +83,7 @@ function testSetNotifyCallback() {
     callbackKey = key;
   };
   m.set('k', 1);
-  assertEquals(callbackKey, 'k');
+  assertEquals('k', callbackKey);
 }
 
 
@@ -124,11 +124,11 @@ function testSetBind() {
   var m = new mvc.MVCObject();
   var n = new mvc.MVCObject();
   m.set('k', 1);
-  assertEquals(m.get('k'), 1);
+  assertEquals(1, m.get('k'));
   assertUndefined(n.get('k'));
   n.bindTo('k', m);
-  assertEquals(m.get('k'), 1);
-  assertEquals(n.get('k'), 1);
+  assertEquals(1, m.get('k'));
+  assertEquals(1, n.get('k'));
 }
 
 
@@ -137,7 +137,8 @@ function testBindSet() {
   var n = new mvc.MVCObject();
   n.bindTo('k', m);
   m.set('k', 1);
-  assertEquals(n.get('k'), m.get('k'));
+  assertEquals(1, m.get('k'));
+  assertEquals(1, n.get('k'));
 }
 
 
@@ -146,7 +147,8 @@ function testBindSetBackwards() {
   var n = new mvc.MVCObject();
   n.bindTo('k', m);
   n.set('k', 1);
-  assertEquals(n.get('k'), m.get('k'));
+  assertEquals(1, m.get('k'));
+  assertEquals(1, n.get('k'));
 }
 
 
@@ -155,7 +157,8 @@ function testSetBindBackwards() {
   var n = new mvc.MVCObject();
   n.set('k', 1);
   n.bindTo('k', m);
-  assertEquals(n.get('k'), m.get('k'));
+  assertUndefined(m.get('k'));
+  assertUndefined(n.get('k'));
 }
 
 
@@ -164,12 +167,14 @@ function testBindSetUnbind() {
   var n = new mvc.MVCObject();
   n.bindTo('k', m);
   n.set('k', 1);
-  assertEquals(n.get('k'), m.get('k'));
+  assertEquals(1, m.get('k'));
+  assertEquals(1, n.get('k'));
   n.unbind('k');
-  assertEquals(n.get('k'), m.get('k'));
+  assertEquals(1, m.get('k'));
+  assertEquals(1, n.get('k'));
   n.set('k', 2);
-  assertEquals(m.get('k'), 1);
-  assertEquals(n.get('k'), 2);
+  assertEquals(1, m.get('k'));
+  assertEquals(2, n.get('k'));
 }
 
 
@@ -244,9 +249,9 @@ function testTransitiveBindForwards() {
   n.bindTo('kn', m, 'km');
   o.bindTo('ko', n, 'kn');
   m.set('km', 1);
-  assertEquals(m.get('km'), 1);
-  assertEquals(n.get('kn'), 1);
-  assertEquals(o.get('ko'), 1);
+  assertEquals(1, m.get('km'));
+  assertEquals(1, n.get('kn'));
+  assertEquals(1, o.get('ko'));
 }
 
 
@@ -257,9 +262,9 @@ function testTransitiveBindBackwards() {
   n.bindTo('kn', m, 'km');
   o.bindTo('ko', n, 'kn');
   o.set('ko', 1);
-  assertEquals(m.get('km'), 1);
-  assertEquals(n.get('kn'), 1);
-  assertEquals(o.get('ko'), 1);
+  assertEquals(1, m.get('km'));
+  assertEquals(1, n.get('kn'));
+  assertEquals(1, o.get('ko'));
 }
 
 
@@ -272,7 +277,7 @@ function testInheritance() {
   };
   var c = new C();
   c.set('k', 1);
-  assertEquals(c.get('k'), 1);
+  assertEquals(1, c.get('k'));
   assertTrue(callbackCalled);
 }
 
@@ -281,14 +286,14 @@ function testMrideyAccessors() {
   // http://blog.mridey.com/2010/03/maps-javascript-api-v3-more-about.html
   var a = new mvc.MVCObject();
   a.set('level', 2);
-  assertEquals(a.get('level'), 2);
+  assertEquals(2, a.get('level'));
   var b = new mvc.MVCObject();
   b.setValues({
     level: 2,
     index: 3,
     description: 'Hello world.'
   });
-  assertEquals(b.get('index'), 3);
+  assertEquals(3, b.get('index'));
 }
 
 
@@ -298,17 +303,17 @@ function testMrideyBinding() {
   a.set('level', 2);
   var b = new mvc.MVCObject();
   b.bindTo('index', a, 'level');
-  assertEquals(b.get('index'), 2);
+  assertEquals(2, b.get('index'));
   a.set('level', 3);
-  assertEquals(b.get('index'), 3);
+  assertEquals(3, b.get('index'));
   b.set('index', 4);
-  assertEquals(a.get('level'), 4);
+  assertEquals(4, a.get('level'));
   var c = new mvc.MVCObject();
   c.bindTo('zoom', a, 'level');
-  assertEquals(c.get('zoom'), 4);
+  assertEquals(4, c.get('zoom'));
   b.unbind('index');
-  assertEquals(b.get('index'), 4);
+  assertEquals(4, b.get('index'));
   c.set('zoom', 5);
-  assertEquals(a.get('level'), 5);
-  assertEquals(b.get('index'), 4);
+  assertEquals(5, a.get('level'));
+  assertEquals(4, b.get('index'));
 }
