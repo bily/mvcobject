@@ -80,22 +80,6 @@ mvc.MVCObject.getListeners = function(obj) {
 
 
 /**
- * @param {mvc.MVCObject} obj Object.
- * @param {string} key Key.
- */
-mvc.MVCObject.doNotify = function(obj, key) {
-  var changedMethodName = key + '_changed';
-  if (obj[changedMethodName]) {
-    obj[changedMethodName]();
-  } else {
-    obj.changed();
-  }
-  var eventType = key.toLowerCase() + '_changed';
-  obj.dispatchEvent(eventType);
-};
-
-
-/**
  * @param {string} key Key.
  * @param {mvc.MVCObject} target Target.
  * @param {string=} opt_targetKey Target key.
@@ -104,18 +88,17 @@ mvc.MVCObject.doNotify = function(obj, key) {
 mvc.MVCObject.prototype.bindTo =
     function(key, target, opt_targetKey, opt_noNotify) {
   var targetKey = goog.isDef(opt_targetKey) ? opt_targetKey : key;
-  var that = this;
-  that.unbind(key);
+  this.unbind(key);
   var eventType = targetKey.toLowerCase() + '_changed';
-  var listeners = mvc.MVCObject.getListeners(that);
+  var listeners = mvc.MVCObject.getListeners(this);
   listeners[key] = goog.events.listen(target, eventType, function() {
-    mvc.MVCObject.doNotify(that, key);
-  });
-  var accessors = mvc.MVCObject.getAccessors(that);
+    this.notifyInternal_(key);
+  }, undefined, this);
+  var accessors = mvc.MVCObject.getAccessors(this);
   accessors[key] = {target: target, key: targetKey};
   var noNotify = goog.isDef(opt_noNotify) ? opt_noNotify : false;
   if (!noNotify) {
-    mvc.MVCObject.doNotify(that, key);
+    this.notifyInternal_(key);
   }
 };
 
@@ -159,8 +142,23 @@ mvc.MVCObject.prototype.notify = function(key) {
     var targetKey = accessor.key;
     target.notify(targetKey);
   } else {
-    mvc.MVCObject.doNotify(this, key);
+    this.notifyInternal_(key);
   }
+};
+
+
+/**
+ * @param {string} key Key.
+ */
+mvc.MVCObject.prototype.notifyInternal_ = function(key) {
+  var changedMethodName = key + '_changed';
+  if (this[changedMethodName]) {
+    this[changedMethodName]();
+  } else {
+    this.changed();
+  }
+  var eventType = key.toLowerCase() + '_changed';
+  this.dispatchEvent(eventType);
 };
 
 
@@ -182,7 +180,7 @@ mvc.MVCObject.prototype.set = function(key, value) {
     }
   } else {
     this[key] = value;
-    mvc.MVCObject.doNotify(this, key);
+    this.notifyInternal_(key);
   }
 };
 
@@ -228,11 +226,8 @@ mvc.MVCObject.prototype.unbind = function(key) {
 /**
  */
 mvc.MVCObject.prototype.unbindAll = function() {
-  var keys = [];
   var listeners = mvc.MVCObject.getListeners(this);
-  goog.object.forEach(listeners, function(listener, key) {
-    keys.push(key);
-  });
+  var keys = goog.object.getKeys(listeners);
   goog.array.forEach(keys, function(key) {
     this.unbind(key);
   }, this);
