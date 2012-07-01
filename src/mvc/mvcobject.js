@@ -21,6 +21,7 @@
 goog.provide('mvc.MVCObject');
 
 goog.require('goog.array');
+goog.require('goog.events');
 goog.require('goog.events.EventTarget');
 goog.require('goog.object');
 
