@@ -142,7 +142,7 @@ mvc.MVCObject.prototype.changed = function() {
  */
 mvc.MVCObject.prototype.get = function(key) {
   var accessors = mvc.MVCObject.getAccessors(this);
-  if (accessors.hasOwnProperty(key)) {
+  if (goog.object.containsKey(accessors, key)) {
     var accessor = accessors[key];
     var target = accessor.target;
     var targetKey = accessor.key;
@@ -163,7 +163,7 @@ mvc.MVCObject.prototype.get = function(key) {
  */
 mvc.MVCObject.prototype.notify = function(key) {
   var accessors = mvc.MVCObject.getAccessors(this);
-  if (accessors.hasOwnProperty(key)) {
+  if (goog.object.containsKey(accessors, key)) {
     var accessor = accessors[key];
     var target = accessor.target;
     var targetKey = accessor.key;
@@ -195,7 +195,7 @@ mvc.MVCObject.prototype.notifyInternal_ = function(key) {
  */
 mvc.MVCObject.prototype.set = function(key, value) {
   var accessors = mvc.MVCObject.getAccessors(this);
-  if (accessors.hasOwnProperty(key)) {
+  if (goog.object.containsKey(accessors, key)) {
     var accessor = accessors[key];
     var target = accessor.target;
     var targetKey = accessor.key;
