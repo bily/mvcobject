@@ -43,9 +43,10 @@ mvc.MVCArrayEventType = {
  * @extends {goog.events.Event}
  * @param {string} type Type.
  * @param {number} i Index.
+ * @param {*=} opt_value Value.
  * @param {Object=} opt_target Target.
  */
-mvc.MVCArrayEvent = function(type, i, opt_target) {
+mvc.MVCArrayEvent = function(type, i, opt_value, opt_target) {
 
   goog.base(this, type, opt_target);
 
@@ -53,6 +54,11 @@ mvc.MVCArrayEvent = function(type, i, opt_target) {
    * @type {number}
    */
   this.i = i;
+
+  /**
+   * @type {*}
+   */
+  this.value = opt_value;
 
 };
 goog.inherits(mvc.MVCArrayEvent, goog.events.Event);
@@ -127,8 +133,8 @@ mvc.MVCArray.prototype.getLength = function() {
  */
 mvc.MVCArray.prototype.insertAt = function(i, elem) {
   goog.array.insertAt(this.array_, elem, i);
-  this.dispatchEvent(
-      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.INSERT_AT, i, this));
+  this.dispatchEvent(new mvc.MVCArrayEvent(
+      mvc.MVCArrayEventType.INSERT_AT, i, undefined, this));
 };
 
 
@@ -161,9 +167,10 @@ mvc.MVCArray.prototype.push = function(elem) {
  * @param {number} i Index.
  */
 mvc.MVCArray.prototype.removeAt = function(i) {
+  var value = this.array_[i];
   goog.array.removeAt(this.array_, i);
   this.dispatchEvent(
-      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.REMOVE_AT, i, this));
+      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.REMOVE_AT, i, value, this));
 };
 
 
@@ -172,7 +179,8 @@ mvc.MVCArray.prototype.removeAt = function(i) {
  * @param {*} elem Element.
  */
 mvc.MVCArray.prototype.setAt = function(i, elem) {
+  var value = this.array_[i];
   this.array_[i] = elem;
   this.dispatchEvent(
-      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.SET_AT, i, this));
+      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.SET_AT, i, value, this));
 };

@@ -89,24 +89,28 @@ function testForEachPopulated() {
 
 
 function testSetAtEvent() {
-  var a = new mvc.MVCArray();
-  var index;
+  var a = new mvc.MVCArray(['a', 'b']);
+  var index, value;
   goog.events.listen(a, mvc.MVCArrayEventType.SET_AT, function(e) {
     index = e.i;
+    value = e.value;
   });
   a.setAt(1, 1);
   assertEquals(index, 1);
+  assertEquals(value, 'b');
 }
 
 
 function testRemoveAtEvent() {
-  var a = new mvc.MVCArray([0]);
-  var index;
+  var a = new mvc.MVCArray(['a']);
+  var index, value;
   goog.events.listen(a, mvc.MVCArrayEventType.REMOVE_AT, function(e) {
     index = e.i;
+    value = e.value;
   });
   a.pop();
   assertEquals(index, 0);
+  assertEquals(value, 'a');
 }
 
 
