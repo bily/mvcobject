@@ -348,3 +348,26 @@ function testPriorityUndefined() {
   assertUndefined(a.get('k'));
   assertUndefined(b.get('k'));
 }
+
+
+function testSetter() {
+  var a = new mvc.MVCObject();
+  var x;
+  a.setX = function(value) {
+    x = value;
+  };
+  a.set('x', 1);
+  assertEquals(1, x);
+}
+
+
+function testGetter() {
+  var a = new mvc.MVCObject();
+  var getterCalled;
+  a.getX = function() {
+    getterCalled = true;
+    return 1;
+  };
+  assertEquals(1, a.get('x'));
+  assertTrue(getterCalled);
+}

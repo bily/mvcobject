@@ -38,6 +38,15 @@ goog.inherits(mvc.MVCObject, goog.events.EventTarget);
 
 
 /**
+ * @param {string} s String.
+ * @return {string} Capitalized string.
+ */
+mvc.MVCObject.capitalize = function(s) {
+  return s[0].toUpperCase() + s.slice(1);
+};
+
+
+/**
  * @private
  * @type {Object.<string, function(*)>}
  */
@@ -73,7 +82,7 @@ mvc.MVCObject.prototype.bindTo =
   var eventType = targetKey + '_changed';
   var noNotify = goog.isDef(opt_noNotify) ? opt_noNotify : false;
   this.listeners_[key] = goog.events.listen(target, eventType, function() {
-    goog.object.set(this, key, target.get(targetKey));
+    this.setInternal_(key, target.get(targetKey));
     if (!noNotify) {
       this.notify(key);
     }
@@ -86,7 +95,12 @@ mvc.MVCObject.prototype.bindTo =
  * @return {*} Value.
  */
 mvc.MVCObject.prototype.get = function(key) {
-  return goog.object.get(this, key);
+  var getterName = 'get' + mvc.MVCObject.capitalize(key);
+  if (goog.object.containsKey(this, getterName)) {
+    return this[getterName]();
+  } else {
+    return goog.object.get(this, key);
+  }
 };
 
 
@@ -112,8 +126,23 @@ mvc.MVCObject.prototype.set = function(key, value) {
       goog.object.containsKey(this.setters_, key)) {
     this.setters_[key](value);
   } else {
-    goog.object.set(this, key, value);
+    this.setInternal_(key, value);
     this.notify(key);
+  }
+};
+
+
+/**
+ * @private
+ * @param {string} key Key.
+ * @param {*} value Value.
+ */
+mvc.MVCObject.prototype.setInternal_ = function(key, value) {
+  var setterName = 'set' + mvc.MVCObject.capitalize(key);
+  if (goog.object.containsKey(this, setterName)) {
+    this[setterName](value);
+  } else {
+    goog.object.set(this, key, value);
   }
 };
 
