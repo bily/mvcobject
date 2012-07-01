@@ -86,3 +86,36 @@ function testForEachPopulated() {
   });
   assertEquals(forEachCount, 2);
 }
+
+
+function testSetAtEvent() {
+  var a = new mvc.MVCArray();
+  var index;
+  goog.events.listen(a, mvc.MVCArrayEventType.SET_AT, function(e) {
+    index = e.i;
+  });
+  a.setAt(1, 1);
+  assertEquals(index, 1);
+}
+
+
+function testRemoveAtEvent() {
+  var a = new mvc.MVCArray([0]);
+  var index;
+  goog.events.listen(a, mvc.MVCArrayEventType.REMOVE_AT, function(e) {
+    index = e.i;
+  });
+  a.pop();
+  assertEquals(index, 0);
+}
+
+
+function testInsertAtEvent() {
+  var a = new mvc.MVCArray([0, 2]);
+  var index;
+  goog.events.listen(a, mvc.MVCArrayEventType.INSERT_AT, function(e) {
+    index = e.i;
+  });
+  a.insertAt(1, 1);
+  assertEquals(index, 1);
+}

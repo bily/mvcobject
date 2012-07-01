@@ -18,10 +18,44 @@
  */
 
 goog.provide('mvc.MVCArray');
+goog.provide('mvc.MVCArrayEvent');
+goog.provide('mvc.MVCArrayEventType');
 
 goog.require('goog.array');
 goog.require('goog.asserts');
+goog.require('goog.events.Event');
 goog.require('mvc.MVCObject');
+
+
+/**
+ * @enum {string}
+ */
+mvc.MVCArrayEventType = {
+  INSERT_AT: 'insert_at',
+  REMOVE_AT: 'remove_at',
+  SET_AT: 'set_at'
+};
+
+
+
+/**
+ * @constructor
+ * @extends {goog.events.Event}
+ * @param {string} type Type.
+ * @param {number} i Index.
+ * @param {Object=} opt_target Target.
+ */
+mvc.MVCArrayEvent = function(type, i, opt_target) {
+
+  goog.base(this, type, opt_target);
+
+  /**
+   * @type {number}
+   */
+  this.i = i;
+
+};
+goog.inherits(mvc.MVCArrayEvent, goog.events.Event);
 
 
 
@@ -92,7 +126,8 @@ mvc.MVCArray.prototype.getLength = function() {
  */
 mvc.MVCArray.prototype.insertAt = function(i, elem) {
   goog.array.insertAt(this.array_, elem, i);
-  // FIXME dispatch event
+  this.dispatchEvent(
+      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.INSERT_AT, i, this));
 };
 
 
@@ -126,7 +161,8 @@ mvc.MVCArray.prototype.push = function(elem) {
  */
 mvc.MVCArray.prototype.removeAt = function(i) {
   goog.array.removeAt(this.array_, i);
-  // FIXME dispatch event
+  this.dispatchEvent(
+      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.REMOVE_AT, i, this));
 };
 
 
@@ -136,5 +172,6 @@ mvc.MVCArray.prototype.removeAt = function(i) {
  */
 mvc.MVCArray.prototype.setAt = function(i, elem) {
   this.array_[i] = elem;
-  // FIXME dispatch event
+  this.dispatchEvent(
+      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.SET_AT, i, this));
 };
