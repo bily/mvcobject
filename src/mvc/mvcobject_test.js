@@ -317,3 +317,34 @@ function testMrideyBinding() {
   assertEquals(5, a.get('level'));
   assertEquals(4, b.get('index'));
 }
+
+
+function testCircularBind() {
+  var a = new mvc.MVCObject();
+  var b = new mvc.MVCObject();
+  a.bindTo('k', b);
+  assertThrows(function() {
+    b.bindTo('k', a);
+  });
+}
+
+
+function testPriority() {
+  var a = new mvc.MVCObject();
+  var b = new mvc.MVCObject();
+  a.set('k', 1);
+  b.set('k', 2);
+  a.bindTo('k', b);
+  assertEquals(2, a.get('k'));
+  assertEquals(2, b.get('k'));
+}
+
+
+function testPriorityUndefined() {
+  var a = new mvc.MVCObject();
+  var b = new mvc.MVCObject();
+  a.set('k', 1);
+  a.bindTo('k', b);
+  assertUndefined(a.get('k'));
+  assertUndefined(b.get('k'));
+}
