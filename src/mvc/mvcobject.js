@@ -38,11 +38,20 @@ goog.inherits(mvc.MVCObject, goog.events.EventTarget);
 
 
 /**
- * @param {string} s String.
+ * @private
+ * @type {Object.<string, string>}
+ */
+mvc.MVCObject.capitalizeCache_ = {};
+
+
+/**
+ * @param {string} str String.
  * @return {string} Capitalized string.
  */
-mvc.MVCObject.capitalize = function(s) {
-  return s[0].toUpperCase() + s.slice(1);
+mvc.MVCObject.capitalize = function(str) {
+  return mvc.MVCObject.capitalizeCache_[str] ||
+      (mvc.MVCObject.capitalizeCache_[str] =
+          str.substr(0, 1).toUpperCase() + str.substr(1));
 };
 
 
