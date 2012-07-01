@@ -81,6 +81,7 @@ goog.inherits(mvc.MVCArray, mvc.MVCObject);
 /**
  */
 mvc.MVCArray.prototype.clear = function() {
+  var i;
   for (i = this.array_.length; i > 0; --i) {
     this.removeAt(i - 1);
   }
