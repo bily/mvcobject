@@ -1,6 +1,7 @@
-goog.require('goog.testing.jsunit');
 goog.require('goog.array');
+goog.require('goog.testing.jsunit');
 goog.require('mvc.MVCArray');
+goog.require('mvc.MVCArrayEventType');
 
 
 function testEmpty() {
