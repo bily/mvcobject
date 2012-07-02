@@ -2,7 +2,8 @@
   "id": "mvcobject",
 
   "inputs": [
-    "src/mvc/mvcobject.js"
+    "src/mvc/mvcobject.js",
+    "src/mvc/mvcarray.js"
   ],
 
   "paths": [
