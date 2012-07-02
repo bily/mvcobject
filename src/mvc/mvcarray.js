@@ -41,7 +41,7 @@ mvc.MVCArrayEventType = {
 /**
  * @constructor
  * @extends {goog.events.Event}
- * @param {string} type Type.
+ * @param {mvc.MVCArrayEventType} type Type.
  * @param {number} i Index.
  * @param {*=} opt_value Value.
  * @param {Object=} opt_target Target.
@@ -80,16 +80,24 @@ mvc.MVCArray = function(opt_array) {
    */
   this.array_ = goog.isDefAndNotNull(opt_array) ? opt_array : [];
 
+  this.updateLength_();
+
 };
 goog.inherits(mvc.MVCArray, mvc.MVCObject);
 
 
 /**
+ * @const
+ * @type {string}
+ */
+mvc.MVCArray.LENGTH = 'length';
+
+
+/**
  */
 mvc.MVCArray.prototype.clear = function() {
-  var i;
-  for (i = this.array_.length; i > 0; --i) {
-    this.removeAt(i - 1);
+  while (this[mvc.MVCArray.LENGTH]) {
+    this.pop();
   }
 };
 
@@ -123,7 +131,7 @@ mvc.MVCArray.prototype.getAt = function(i) {
  * @return {number} Length.
  */
 mvc.MVCArray.prototype.getLength = function() {
-  return this.array_.length;
+  return /** @type {number} */ (this.get(mvc.MVCArray.LENGTH));
 };
 
 
@@ -133,8 +141,12 @@ mvc.MVCArray.prototype.getLength = function() {
  */
 mvc.MVCArray.prototype.insertAt = function(i, elem) {
   goog.array.insertAt(this.array_, elem, i);
+  this.updateLength_();
   this.dispatchEvent(new mvc.MVCArrayEvent(
       mvc.MVCArrayEventType.INSERT_AT, i, undefined, this));
+  if (this[mvc.MVCArrayEventType.INSERT_AT]) {
+    this[mvc.MVCArrayEventType.INSERT_AT](i);
+  }
 };
 
 
@@ -142,13 +154,7 @@ mvc.MVCArray.prototype.insertAt = function(i, elem) {
  * @return {*} Element.
  */
 mvc.MVCArray.prototype.pop = function() {
-  var n = this.array_.length;
-  goog.asserts.assert(n > 0);
-  if (n === 0) {
-    return undefined;
-  } else {
-    return this.removeAt(n - 1);
-  }
+  return this.removeAt(this.getLength() - 1);
 };
 
 
@@ -165,12 +171,18 @@ mvc.MVCArray.prototype.push = function(elem) {
 
 /**
  * @param {number} i Index.
+ * @return {*} Value.
  */
 mvc.MVCArray.prototype.removeAt = function(i) {
   var value = this.array_[i];
   goog.array.removeAt(this.array_, i);
+  this.updateLength_();
   this.dispatchEvent(
       new mvc.MVCArrayEvent(mvc.MVCArrayEventType.REMOVE_AT, i, value, this));
+  if (this[mvc.MVCArrayEventType.REMOVE_AT]) {
+    this[mvc.MVCArrayEventType.REMOVE_AT](i);
+  }
+  return value;
 };
 
 
@@ -179,8 +191,28 @@ mvc.MVCArray.prototype.removeAt = function(i) {
  * @param {*} elem Element.
  */
 mvc.MVCArray.prototype.setAt = function(i, elem) {
-  var value = this.array_[i];
-  this.array_[i] = elem;
-  this.dispatchEvent(
-      new mvc.MVCArrayEvent(mvc.MVCArrayEventType.SET_AT, i, value, this));
+  var n = this[mvc.MVCArray.LENGTH];
+  if (i < n) {
+    var value = this.array_[i];
+    this.array_[i] = elem;
+    this.dispatchEvent(
+        new mvc.MVCArrayEvent(mvc.MVCArrayEventType.SET_AT, i, value, this));
+    if (this[mvc.MVCArrayEventType.SET_AT]) {
+      this[mvc.MVCArrayEventType.SET_AT](i, value);
+    }
+  } else {
+    var j;
+    for (j = n; j < i; ++j) {
+      this.insertAt(j, undefined);
+    }
+    this.insertAt(i, elem);
+  }
+};
+
+
+/**
+ * @private
+ */
+mvc.MVCArray.prototype.updateLength_ = function() {
+  this.set('length', this.array_.length);
 };

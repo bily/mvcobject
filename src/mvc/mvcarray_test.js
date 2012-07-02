@@ -123,3 +123,21 @@ function testInsertAtEvent() {
   a.insertAt(1, 1);
   assertEquals(1, index);
 }
+
+
+function testSetAtBeyondEnd() {
+  var a = new mvc.MVCArray();
+  var inserts = [];
+  a.insert_at = function(i) {
+    inserts.push(i);
+  };
+  a.setAt(2, 0);
+  assertEquals(3, a.getLength());
+  assertUndefined(a.getAt(0));
+  assertUndefined(a.getAt(1));
+  assertEquals(0, a.getAt(2));
+  assertEquals(3, inserts.length);
+  assertEquals(0, inserts[0]);
+  assertEquals(1, inserts[1]);
+  assertEquals(2, inserts[2]);
+}
