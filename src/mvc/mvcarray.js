@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview A cleanroom implementation of Google Maps' MVCArray.
+ * @fileoverview An implementation of Google Maps' MVCArray.
  * @see https://developers.google.com/maps/documentation/javascript/reference
  */
 
