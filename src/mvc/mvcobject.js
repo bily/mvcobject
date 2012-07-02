@@ -61,6 +61,7 @@ mvc.MVCObject.getterNameCache_ = {};
 
 /**
  * @param {string} str String.
+ * @private
  * @return {string} Capitalized string.
  */
 mvc.MVCObject.getGetterName_ = function(str) {
@@ -79,6 +80,7 @@ mvc.MVCObject.setterNameCache_ = {};
 
 /**
  * @param {string} str String.
+ * @private
  * @return {string} Capitalized string.
  */
 mvc.MVCObject.getSetterName_ = function(str) {
@@ -176,6 +178,7 @@ mvc.MVCObject.prototype.notify = function(key) {
 
 /**
  * @param {string} key Key.
+ * @private
  */
 mvc.MVCObject.prototype.notifyInternal_ = function(key) {
   var changedMethodName = key + '_changed';
