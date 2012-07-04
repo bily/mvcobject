@@ -53,6 +53,21 @@ mvc.MVCObject.capitalize = function(str) {
 
 
 /**
+ * @param {mvc.MVCObject|Object} arg Argument.
+ * @return {mvc.MVCObject} MVCObject.
+ */
+mvc.MVCObject.create = function(arg) {
+  if (arg instanceof mvc.MVCObject) {
+    return arg;
+  } else {
+    var mvcObject = new mvc.MVCObject();
+    mvcObject.setOptions(arg);
+    return mvcObject;
+  }
+};
+
+
+/**
  * @private
  * @type {Object.<string, string>}
  */

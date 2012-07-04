@@ -433,3 +433,18 @@ function testChangedKey() {
   a.set('k', 1);
   assertEquals('k', changedKey);
 }
+
+
+function testCreateFromObject() {
+  var obj = {k: 1};
+  var mvcObject = mvc.MVCObject.create(obj);
+  assertTrue(mvcObject instanceof mvc.MVCObject);
+  assertEquals(1, mvcObject.get('k'));
+}
+
+
+function testCreateFromMVCObject() {
+  var mvcObject1 = new mvc.MVCObject();
+  var mvcObject2 = mvc.MVCObject.create(mvcObject1);
+  assertTrue(mvcObject2 === mvcObject1);
+}
