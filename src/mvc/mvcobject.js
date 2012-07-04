@@ -133,8 +133,9 @@ mvc.MVCObject.prototype.bindTo =
 
 
 /**
+ * @param {string} key Key.
  */
-mvc.MVCObject.prototype.changed = function() {
+mvc.MVCObject.prototype.changed = function(key) {
 };
 
 
@@ -185,7 +186,7 @@ mvc.MVCObject.prototype.notifyInternal_ = function(key) {
   if (this[changedMethodName]) {
     this[changedMethodName]();
   } else {
-    this.changed();
+    this.changed(key);
   }
   var eventType = key.toLowerCase() + '_changed';
   this.dispatchEvent(eventType);

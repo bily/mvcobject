@@ -422,3 +422,14 @@ function testBindSelf() {
     a.bindTo('k', a);
   });
 }
+
+
+function testChangedKey() {
+  var a = new mvc.MVCObject();
+  var changedKey;
+  a.changed = function(key) {
+    changedKey = key;
+  };
+  a.set('k', 1);
+  assertEquals('k', changedKey);
+}
