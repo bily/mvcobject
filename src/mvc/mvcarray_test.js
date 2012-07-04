@@ -141,3 +141,22 @@ function testSetAtBeyondEnd() {
   assertEquals(1, inserts[1]);
   assertEquals(2, inserts[2]);
 }
+
+
+function testCreateFromArray() {
+  var a = [0, 1, 2];
+  var mvcArray = mvc.MVCArray.create(a);
+  assertTrue(mvcArray instanceof mvc.MVCArray);
+  assertEquals(3, mvcArray.getLength());
+  assertEquals(0, mvcArray.getAt(0));
+  assertEquals(1, mvcArray.getAt(1));
+  assertEquals(2, mvcArray.getAt(2));
+}
+
+
+function testCreateFromMVCArray() {
+  var mvcArray1 = new mvc.MVCArray();
+  var mvcArray2 = mvc.MVCArray.create(mvcArray1);
+  assertTrue(mvcArray1 === mvcArray2);
+
+}

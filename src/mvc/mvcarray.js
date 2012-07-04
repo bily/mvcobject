@@ -94,6 +94,19 @@ mvc.MVCArray.LENGTH = 'length';
 
 
 /**
+ * @param {mvc.MVCArray|Array} arg Argument.
+ * @return {mvc.MVCArray} MVCArray.
+ */
+mvc.MVCArray.create = function(arg) {
+  if (arg instanceof mvc.MVCArray) {
+    return arg;
+  } else {
+    return new mvc.MVCArray(arg);
+  }
+};
+
+
+/**
  */
 mvc.MVCArray.prototype.clear = function() {
   while (this[mvc.MVCArray.LENGTH]) {
