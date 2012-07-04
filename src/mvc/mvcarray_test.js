@@ -92,7 +92,7 @@ function testSetAtEvent() {
   var a = new mvc.MVCArray(['a', 'b']);
   var index, value;
   goog.events.listen(a, mvc.MVCArrayEventType.SET_AT, function(e) {
-    index = e.i;
+    index = e.index;
     value = e.value;
   });
   a.setAt(1, 1);
@@ -105,7 +105,7 @@ function testRemoveAtEvent() {
   var a = new mvc.MVCArray(['a']);
   var index, value;
   goog.events.listen(a, mvc.MVCArrayEventType.REMOVE_AT, function(e) {
-    index = e.i;
+    index = e.index;
     value = e.value;
   });
   a.pop();
@@ -118,7 +118,7 @@ function testInsertAtEvent() {
   var a = new mvc.MVCArray([0, 2]);
   var index;
   goog.events.listen(a, mvc.MVCArrayEventType.INSERT_AT, function(e) {
-    index = e.i;
+    index = e.index;
   });
   a.insertAt(1, 1);
   assertEquals(1, index);
@@ -128,8 +128,8 @@ function testInsertAtEvent() {
 function testSetAtBeyondEnd() {
   var a = new mvc.MVCArray();
   var inserts = [];
-  a.insert_at = function(i) {
-    inserts.push(i);
+  a.insert_at = function(index) {
+    inserts.push(index);
   };
   a.setAt(2, 0);
   assertEquals(3, a.getLength());
